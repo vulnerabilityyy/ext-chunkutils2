@@ -2,6 +2,8 @@
 #define HAVE_SUBCHUNK_CONVERTER_H
 
 #include "BlockArrayContainer.h"
+#include "PalettedBlockArray.h"
+#include <string>
 
 #include <functional>
 #include <new>
@@ -163,30 +165,35 @@ void convertSubChunkFromLegacyColumn(BlockArrayContainer<Block> * result, const 
 	convert<Block, uint8_t, getIndexLegacyColumnXZY, mapper, swapCoordinatesNoOp>(result, idSpan, metaSpan, yOffset);
 }
 
-static inline std::string convertSubChunkFromPaletteXZY(const PalettedBlockArray& palettedBlockArray, int protocol) {
-	std::string idArray(4096, '\0');
-	std::string metaArray(2048, '\0');
-	for (int x = 0; x < 16; ++x) {
-		for (int z = 0; z < 16; ++z) {
-			for (int y = 0; y < 16; ++y) {
-				uint16_t block = palettedBlockArray.get(x, y, z);
-				uint8_t legacyId = block >> 4;
-				uint8_t legacyMeta = block & 0x0F;
-				if (legacyId > 255) {
-					legacyId = 248; // minecraft:info_update
-					legacyMeta = 0;
-				}
-				idArray[(x << 8) | (z << 4) | y] = static_cast<char>(legacyId);
-				size_t indexData = (x << 7) | (z << 3) | (y >> 1);
-				if ((y & 1) == 0) {
-					metaArray[indexData] = (metaArray[indexData] & 0xF0) | (legacyMeta & 0x0F);
-				} else {
-					metaArray[indexData] = ((legacyMeta & 0x0F) << 4) | (metaArray[indexData] & 0x0F);
-				}
-			}
-		}
-	}
-	return idArray + metaArray;
+template <VanillaPaletteSize BITS_PER_BLOCK, typename Block>
+static inline std::string convertSubChunkFromPaletteXZY(const PalettedBlockArray<BITS_PER_BLOCK, Block>& palettedBlockArray, int protocol) {
+    std::string idArray(4096, '\0');
+    std::string metaArray(2048, '\0');
+
+    for (int x = 0; x < 16; ++x) {
+        for (int z = 0; z < 16; ++z) {
+            for (int y = 0; y < 16; ++y) {
+                Block block = palettedBlockArray.get(x, y, z);
+                uint8_t legacyId = block >> 4;
+                uint8_t legacyMeta = block & 0x0F;
+
+                if (legacyId > 255) {
+                    legacyId = 248; // minecraft:info_update
+                    legacyMeta = 0;
+                }
+
+                idArray[(x << 8) | (z << 4) | y] = static_cast<char>(legacyId);
+                size_t indexData = (x << 7) | (z << 3) | (y >> 1);
+                if ((y & 1) == 0) {
+                    metaArray[indexData] = (metaArray[indexData] & 0xF0) | (legacyMeta & 0x0F);
+                } else {
+                    metaArray[indexData] = ((legacyMeta & 0x0F) << 4) | (metaArray[indexData] & 0x0F);
+                }
+            }
+        }
+    }
+
+    return idArray + metaArray;
 }
 
 #endif

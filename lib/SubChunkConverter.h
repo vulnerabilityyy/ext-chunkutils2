@@ -166,7 +166,7 @@ void convertSubChunkFromLegacyColumn(BlockArrayContainer<Block> * result, const 
 }
 
 template <VanillaPaletteSize BITS_PER_BLOCK, typename Block>
-static inline std::string convertSubChunkFromPaletteXZY(const PalettedBlockArray<BITS_PER_BLOCK, Block>& palettedBlockArray, int protocol) {
+static std::string convertSubChunkFromPaletteXZY(const PalettedBlockArray<BITS_PER_BLOCK, Block>& palettedBlockArray, int protocol) {
     std::string idArray(4096, '\0');
     std::string metaArray(2048, '\0');
 

@@ -99,37 +99,26 @@ SUB_CHUNK_CONVERTER_METHOD(convertSubChunkFromLegacyColumn) {
 }
 
 SUB_CHUNK_CONVERTER_METHOD(convertSubChunkFromPaletteXZY) {
-    zval *palettedBlockArrayObj;
-    zend_long protocol;
+	zval *palettedBlockArrayObj;
+	zend_long protocol;
 
-    ZEND_PARSE_PARAMETERS_START_EX(ZEND_PARSE_PARAMS_THROW, 2, 2)
-        Z_PARAM_OBJECT_OF_CLASS(palettedBlockArrayObj, paletted_block_array_entry)
-        Z_PARAM_LONG(protocol)
-    ZEND_PARSE_PARAMETERS_END();
+	ZEND_PARSE_PARAMETERS_START_EX(ZEND_PARSE_PARAMS_THROW, 2, 2)
+		Z_PARAM_OBJECT_OF_CLASS(palettedBlockArrayObj, paletted_block_array_entry)
+		Z_PARAM_LONG(protocol)
+	ZEND_PARSE_PARAMETERS_END();
 
-    paletted_block_array_obj *intern = fetch_from_zend_object<paletted_block_array_obj>(Z_OBJ_P(palettedBlockArrayObj));
+	paletted_block_array_obj *intern = fetch_from_zend_object<paletted_block_array_obj>(Z_OBJ_P(palettedBlockArrayObj));
 
-    try {
-        std::string result;
-        
-        struct Converter {
-            std::string &result;
-            int protocol;
-
-            template<VanillaPaletteSize BITS_PER_BLOCK>
-            void visit(const PalettedBlockArray<BITS_PER_BLOCK, Block>& palettedArray) {
-                result = convertSubChunkFromPaletteXZY(palettedArray, protocol);
-            }
-        };
-
-        Converter converter{result, static_cast<int>(protocol)};
-        intern->container.specializeForArraySize<void>(converter);
-
-        RETURN_STRINGL(result.data(), result.size());
-    }
-    catch (const std::exception &e) {
-        zend_throw_exception_ex(spl_ce_RuntimeException, 0, "Conversion failed: %s", e.what());
-    }
+	try {
+		std::string result = convertSubChunkFromPaletteXZY<Block, &flattenData>(intern->container, static_cast<int>(protocol));
+		
+		zend_string *output = zend_string_init(result.data(), result.size(), 0);
+		RETURN_STR(output);
+	}
+	catch (const std::exception &e) {
+		zend_throw_exception_ex(spl_ce_RuntimeException, 0, "Conversion failed: %s", e.what());
+		return;
+	}
 }
 
 SUB_CHUNK_CONVERTER_METHOD(__construct) {

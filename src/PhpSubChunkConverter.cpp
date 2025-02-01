@@ -98,6 +98,23 @@ SUB_CHUNK_CONVERTER_METHOD(convertSubChunkFromLegacyColumn) {
 	}
 }
 
+SUB_CHUNK_CONVERTER_METHOD(convertSubChunkFromPaletteXZY) {
+	zval *palettedBlockArrayObj;
+	zend_long protocol;
+	ZEND_PARSE_PARAMETERS_START_EX(ZEND_PARSE_PARAMS_THROW, 2, 2)
+		Z_PARAM_OBJECT_OF_CLASS(palettedBlockArrayObj, paletted_block_array_entry)
+		Z_PARAM_LONG(protocol)
+	ZEND_PARSE_PARAMETERS_END();
+	paletted_block_array_obj *intern = fetch_from_zend_object<paletted_block_array_obj>(Z_OBJ_P(palettedBlockArrayObj));
+	try {
+		std::string result = SubChunkConverter::convertSubChunkFromPaletteXZY(intern->container, static_cast<int>(protocol));
+		RETURN_STRINGL(result.data(), result.size());
+	}
+	catch (const std::exception &e) {
+		zend_throw_exception_ex(spl_ce_RuntimeException, 0, "Conversion failed: %s", e.what());
+	}
+}
+
 SUB_CHUNK_CONVERTER_METHOD(__construct) {
 	//NOOP
 }

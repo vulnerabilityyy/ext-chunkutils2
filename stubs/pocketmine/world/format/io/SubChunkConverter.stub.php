@@ -14,5 +14,7 @@ final class SubChunkConverter{
 
 	public static function convertSubChunkFromLegacyColumn(string $idArray, string $metaArray, int $yOffset) : \pocketmine\world\format\PalettedBlockArray{}
 
+	public static function convertSubChunkFromPaletteXZY(\pocketmine\world\format\PalettedBlockArray $palette, int $protocol) : string{}
+
 	private function __construct(){}
 }

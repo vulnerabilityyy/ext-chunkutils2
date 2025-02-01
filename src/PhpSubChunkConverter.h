@@ -8,6 +8,7 @@ extern "C" {
 PHP_METHOD(PhpSubChunkConverter, convertSubChunkXZY);
 PHP_METHOD(PhpSubChunkConverter, convertSubChunkYZX);
 PHP_METHOD(PhpSubChunkConverter, convertSubChunkFromLegacyColumn);
+PHP_METHOD(PhpSubChunkConverter, convertSubChunkFromPaletteXZY);
 
 void register_sub_chunk_converter_class();
 

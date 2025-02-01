@@ -111,11 +111,10 @@ SUB_CHUNK_CONVERTER_METHOD(convertSubChunkFromPaletteXZY) {
 
     try {
         std::string result;
-        intern->container.specializeForArraySize<void>(
-            [&](auto& palettedArray) {
-                result = convertSubChunkFromPaletteXZY(palettedArray, static_cast<int>(protocol));
-            }
-        );
+        auto lambda = [&](auto& palettedArray) {
+            result = convertSubChunkFromPaletteXZY(palettedArray, static_cast<int>(protocol));
+        };
+        intern->container.specializeForArraySize<void>(lambda);
         RETURN_STRINGL(result.data(), result.size());
     }
     catch (const std::exception &e) {

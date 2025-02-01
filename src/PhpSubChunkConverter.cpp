@@ -107,7 +107,7 @@ SUB_CHUNK_CONVERTER_METHOD(convertSubChunkFromPaletteXZY) {
 	ZEND_PARSE_PARAMETERS_END();
 	paletted_block_array_obj *intern = fetch_from_zend_object<paletted_block_array_obj>(Z_OBJ_P(palettedBlockArrayObj));
 	try {
-		std::string result = SubChunkConverter::convertSubChunkFromPaletteXZY(intern->container, static_cast<int>(protocol));
+		std::string result = convertSubChunkFromPaletteXZY(intern->container, static_cast<int>(protocol));
 		RETURN_STRINGL(result.data(), result.size());
 	}
 	catch (const std::exception &e) {
